@@ -1,0 +1,524 @@
+{
+  "manifest_version": 1,
+  "type": "ai",
+  "name": "OpenAI",
+  "description": {
+    "en": "Run the Gladys assistant on OpenAI GPT models with your own OpenAI API key.",
+    "fr": "Faites tourner l’assistant Gladys sur les modèles GPT d’OpenAI avec votre clé d’API OpenAI.",
+    "de": "Betreibe den Gladys-Assistenten mit GPT-Modellen von OpenAI und deinem OpenAI-API-Schlüssel.",
+    "es": "Haga funcionar el asistente de Gladys con los modelos GPT de OpenAI y su clave de API de OpenAI."
+  },
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/william-de71/gladys-openai:0.1.0",
+  "gladys_version": ">=5.3.0",
+  "categories": ["assistants"],
+  "keywords": ["gpt", "chatgpt", "gpt-6", "terra", "luna", "astra", "llm", "chatbot", "ia", "ki"],
+  "cover_image": "https://raw.githubusercontent.com/William-De71/gladys-openai/main/cover.jpg",
+  "transports": ["cloud"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Getting started",
+        "fr": "Pour commencer",
+        "de": "Erste Schritte",
+        "es": "Primeros pasos"
+      },
+      "description": {
+        "en": "The assistant answers through the OpenAI API, billed per use on your OpenAI account (prepaid credits): create an API key on platform.openai.com, paste it below, then select this integration in Settings, Artificial Intelligence. OpenAI then sees every chat message, the history, the state of the devices it reads and the chat images.",
+        "fr": "L’assistant répond via l’API OpenAI, facturée à l’usage sur votre compte OpenAI (crédits prépayés) : créez une clé d’API sur platform.openai.com, collez-la ci-dessous, puis choisissez cette intégration dans Paramètres, Intelligence artificielle. OpenAI voit alors chaque message du chat, l’historique, l’état des appareils qu’il consulte et les images du chat.",
+        "de": "Der Assistent antwortet über die OpenAI-API, die nach Nutzung über dein OpenAI-Konto abgerechnet wird (Prepaid-Guthaben): Erstelle einen API-Schlüssel auf platform.openai.com, füge ihn unten ein und wähle dann diese Integration unter Einstellungen, Künstliche Intelligenz. OpenAI sieht dann jede Chat-Nachricht, den Verlauf, den Zustand der Geräte, die es abfragt, und die Bilder des Chats.",
+        "es": "El asistente responde a través de la API de OpenAI, facturada por uso en su cuenta de OpenAI (créditos prepagados): cree una clave de API en platform.openai.com, péguela abajo y luego elija esta integración en Ajustes, Inteligencia artificial. OpenAI ve entonces cada mensaje del chat, el historial, el estado de los dispositivos que consulta y las imágenes del chat."
+      },
+      "links": [
+        {
+          "url": "https://platform.openai.com/api-keys",
+          "label": {
+            "en": "OpenAI API keys",
+            "fr": "Clés d’API OpenAI",
+            "de": "OpenAI-API-Schlüssel",
+            "es": "Claves de API de OpenAI"
+          }
+        },
+        {
+          "url": "https://github.com/William-De71/gladys-openai/blob/main/docs/en.md",
+          "label": {
+            "en": "Integration documentation",
+            "fr": "Documentation de l’intégration",
+            "de": "Dokumentation der Integration",
+            "es": "Documentación de la integración"
+          }
+        }
+      ]
+    },
+    {
+      "key": "privacy",
+      "type": "section",
+      "label": {
+        "en": "Costs and privacy",
+        "fr": "Coûts et confidentialité",
+        "de": "Kosten und Datenschutz",
+        "es": "Costes y privacidad"
+      },
+      "description": {
+        "en": "OpenAI does not train its models on API data unless you opt in. Requests are sent with store off, but OpenAI keeps abuse monitoring logs for up to 30 days. Every chat message also runs the router: set a monthly budget and spend limits in the Limits page of the platform.",
+        "fr": "OpenAI n’entraîne pas ses modèles sur les données de l’API sauf accord de votre part. Les requêtes partent sans stockage, mais OpenAI garde des journaux de surveillance des abus jusqu’à 30 jours. Chaque message du chat passe aussi par le routeur : fixez un budget mensuel et des plafonds dans la page Limits de la plateforme.",
+        "de": "OpenAI trainiert seine Modelle nicht mit API-Daten, außer du stimmst zu. Die Anfragen werden ohne Speicherung gesendet, aber OpenAI bewahrt Protokolle zur Missbrauchsüberwachung bis zu 30 Tage auf. Jede Chat-Nachricht läuft auch über den Router: Lege auf der Seite Limits der Plattform ein Monatsbudget und Ausgabenlimits fest.",
+        "es": "OpenAI no entrena sus modelos con los datos de la API salvo que usted lo acepte. Las solicitudes se envían sin almacenamiento, pero OpenAI conserva registros de supervisión de abusos hasta 30 días. Cada mensaje del chat pasa también por el enrutador: fije un presupuesto mensual y límites de gasto en la página Limits de la plataforma."
+      }
+    },
+    {
+      "key": "api_key",
+      "type": "secret",
+      "label": {
+        "en": "OpenAI API key",
+        "fr": "Clé d’API OpenAI",
+        "de": "OpenAI-API-Schlüssel",
+        "es": "Clave de API de OpenAI"
+      },
+      "description": {
+        "en": "Created on platform.openai.com, in API keys (a project key is enough). It stays in Gladys and is never shown again nor logged.",
+        "fr": "Créée sur platform.openai.com, dans API keys (une clé de projet suffit). Elle reste dans Gladys, n’est plus jamais affichée ni journalisée.",
+        "de": "Auf platform.openai.com unter API keys erstellt (ein Projektschlüssel genügt). Er bleibt in Gladys und wird nie wieder angezeigt oder protokolliert.",
+        "es": "Creada en platform.openai.com, en API keys (basta con una clave de proyecto). Se queda en Gladys y nunca se vuelve a mostrar ni se registra."
+      },
+      "required": true
+    },
+    {
+      "key": "model",
+      "type": "select",
+      "label": {
+        "en": "Chat model",
+        "fr": "Modèle du chat",
+        "de": "Chat-Modell",
+        "es": "Modelo del chat"
+      },
+      "description": {
+        "en": "Answers the chat, creates the scenes and writes the weekly digest. 6.1 Terra balances quality and cost; 6.1 Sol and 6 Astra are stronger but cost 2 and 10 times more; 6 Luna is the cheapest but less reliable to create scenes.",
+        "fr": "Répond au chat, crée les scènes et rédige le résumé hebdomadaire. 6.1 Terra équilibre qualité et coût ; 6.1 Sol et 6 Astra sont plus forts mais coûtent 2 et 10 fois plus ; 6 Luna est le moins cher mais moins fiable pour créer des scènes.",
+        "de": "Beantwortet den Chat, erstellt die Szenen und schreibt den Wochenrückblick. 6.1 Terra verbindet Qualität und Kosten; 6.1 Sol und 6 Astra sind stärker, kosten aber das 2- und 10-Fache; 6 Luna ist am günstigsten, aber beim Erstellen von Szenen weniger zuverlässig.",
+        "es": "Responde al chat, crea las escenas y redacta el resumen semanal. 6.1 Terra equilibra calidad y coste; 6.1 Sol y 6 Astra son más potentes pero cuestan 2 y 10 veces más; 6 Luna es el más barato pero menos fiable para crear escenas."
+      },
+      "required": true,
+      "default": "gpt-6.1-terra",
+      "options": [
+        {
+          "value": "gpt-6.1-terra",
+          "label": {
+            "en": "GPT-6.1 Terra (recommended)",
+            "fr": "GPT-6.1 Terra (recommandé)",
+            "de": "GPT-6.1 Terra (empfohlen)",
+            "es": "GPT-6.1 Terra (recomendado)"
+          }
+        },
+        {
+          "value": "gpt-6.1-sol",
+          "label": {
+            "en": "GPT-6.1 Sol",
+            "fr": "GPT-6.1 Sol",
+            "de": "GPT-6.1 Sol",
+            "es": "GPT-6.1 Sol"
+          }
+        },
+        {
+          "value": "gpt-6-astra",
+          "label": {
+            "en": "GPT-6 Astra",
+            "fr": "GPT-6 Astra",
+            "de": "GPT-6 Astra",
+            "es": "GPT-6 Astra"
+          }
+        },
+        {
+          "value": "gpt-6-luna",
+          "label": {
+            "en": "GPT-6 Luna",
+            "fr": "GPT-6 Luna",
+            "de": "GPT-6 Luna",
+            "es": "GPT-6 Luna"
+          }
+        },
+        {
+          "value": "gpt-5.6-terra",
+          "label": {
+            "en": "GPT-5.6 Terra",
+            "fr": "GPT-5.6 Terra",
+            "de": "GPT-5.6 Terra",
+            "es": "GPT-5.6 Terra"
+          }
+        },
+        {
+          "value": "custom",
+          "label": {
+            "en": "Other model (id below)",
+            "fr": "Autre modèle (identifiant ci-dessous)",
+            "de": "Anderes Modell (ID unten)",
+            "es": "Otro modelo (identificador abajo)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "fast_model",
+      "type": "select",
+      "label": {
+        "en": "Router model",
+        "fr": "Modèle du routeur",
+        "de": "Router-Modell",
+        "es": "Modelo del enrutador"
+      },
+      "description": {
+        "en": "Sorts every chat message before the answer, and must reply within 20 seconds: a small, fast model fits best.",
+        "fr": "Trie chaque message du chat avant la réponse, et doit répondre en moins de 20 secondes : un petit modèle rapide convient le mieux.",
+        "de": "Ordnet jede Chat-Nachricht vor der Antwort ein und muss innerhalb von 20 Sekunden antworten: Ein kleines, schnelles Modell passt am besten.",
+        "es": "Clasifica cada mensaje del chat antes de la respuesta y debe contestar en menos de 20 segundos: lo mejor es un modelo pequeño y rápido."
+      },
+      "required": true,
+      "default": "gpt-6-luna",
+      "options": [
+        {
+          "value": "gpt-6-luna",
+          "label": {
+            "en": "GPT-6 Luna (recommended)",
+            "fr": "GPT-6 Luna (recommandé)",
+            "de": "GPT-6 Luna (empfohlen)",
+            "es": "GPT-6 Luna (recomendado)"
+          }
+        },
+        {
+          "value": "gpt-6.1-terra",
+          "label": {
+            "en": "GPT-6.1 Terra",
+            "fr": "GPT-6.1 Terra",
+            "de": "GPT-6.1 Terra",
+            "es": "GPT-6.1 Terra"
+          }
+        },
+        {
+          "value": "gpt-5.6-luna",
+          "label": {
+            "en": "GPT-5.6 Luna",
+            "fr": "GPT-5.6 Luna",
+            "de": "GPT-5.6 Luna",
+            "es": "GPT-5.6 Luna"
+          }
+        },
+        {
+          "value": "custom",
+          "label": {
+            "en": "Other model (id below)",
+            "fr": "Autre modèle (identifiant ci-dessous)",
+            "de": "Anderes Modell (ID unten)",
+            "es": "Otro modelo (identificador abajo)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "custom_model",
+      "type": "string",
+      "label": {
+        "en": "Other model id",
+        "fr": "Identifiant de l’autre modèle",
+        "de": "ID des anderen Modells",
+        "es": "Identificador del otro modelo"
+      },
+      "description": {
+        "en": "Only for “Other model”: the exact API id of an OpenAI model (a newer model, a dated snapshot…). It must call functions through the Responses API.",
+        "fr": "Seulement pour « Autre modèle » : l’identifiant exact d’un modèle OpenAI (un modèle plus récent, une version datée…). Il doit savoir appeler des fonctions via l’API Responses.",
+        "de": "Nur für „Anderes Modell“: die genaue API-ID eines OpenAI-Modells (ein neueres Modell, ein datierter Snapshot…). Es muss über die Responses-API Funktionen aufrufen können.",
+        "es": "Solo para «Otro modelo»: el identificador exacto de un modelo de OpenAI (un modelo más reciente, una versión fechada…). Debe poder llamar a funciones mediante la API Responses."
+      },
+      "placeholder": {
+        "en": "gpt-5.5",
+        "fr": "gpt-5.5",
+        "de": "gpt-5.5",
+        "es": "gpt-5.5"
+      },
+      "required": false
+    },
+    {
+      "key": "reasoning",
+      "type": "select",
+      "label": {
+        "en": "Reasoning of the chat model",
+        "fr": "Raisonnement du modèle du chat",
+        "de": "Nachdenken des Chat-Modells",
+        "es": "Razonamiento del modelo del chat"
+      },
+      "description": {
+        "en": "More reasoning gives better scenes but slower, costlier answers. 6.1 Sol and 6 Astra cannot turn it off: “None” becomes low for them.",
+        "fr": "Plus de raisonnement donne de meilleures scènes mais des réponses plus lentes et plus chères. 6.1 Sol et 6 Astra ne peuvent pas l’arrêter : « Aucun » devient faible pour eux.",
+        "de": "Mehr Nachdenken ergibt bessere Szenen, aber langsamere und teurere Antworten. 6.1 Sol und 6 Astra können es nicht abschalten: „Keines“ wird bei ihnen zu niedrig.",
+        "es": "Más razonamiento da mejores escenas pero respuestas más lentas y caras. 6.1 Sol y 6 Astra no pueden desactivarlo: «Ninguno» pasa a bajo para ellos."
+      },
+      "required": true,
+      "default": "low",
+      "options": [
+        {
+          "value": "none",
+          "label": {
+            "en": "None",
+            "fr": "Aucun",
+            "de": "Keines",
+            "es": "Ninguno"
+          }
+        },
+        {
+          "value": "low",
+          "label": {
+            "en": "Low (recommended)",
+            "fr": "Faible (recommandé)",
+            "de": "Niedrig (empfohlen)",
+            "es": "Bajo (recomendado)"
+          }
+        },
+        {
+          "value": "medium",
+          "label": {
+            "en": "Medium",
+            "fr": "Moyen",
+            "de": "Mittel",
+            "es": "Medio"
+          }
+        },
+        {
+          "value": "high",
+          "label": {
+            "en": "High",
+            "fr": "Élevé",
+            "de": "Hoch",
+            "es": "Alto"
+          }
+        }
+      ]
+    },
+    {
+      "key": "max_tokens",
+      "type": "number",
+      "label": {
+        "en": "Maximum answer length (tokens)",
+        "fr": "Longueur maximale d’une réponse (jetons)",
+        "de": "Maximale Antwortlänge (Tokens)",
+        "es": "Longitud máxima de una respuesta (tokens)"
+      },
+      "description": {
+        "en": "The reasoning counts in it too. Raise it if the logs say an answer hit max_tokens; OpenAI advises 25000 to experiment with high reasoning.",
+        "fr": "Le raisonnement compte aussi dedans. Augmentez-la si les journaux indiquent qu’une réponse a atteint max_tokens ; OpenAI conseille 25000 pour essayer un raisonnement élevé.",
+        "de": "Das Nachdenken zählt ebenfalls dazu. Erhöhe den Wert, wenn die Protokolle melden, dass eine Antwort max_tokens erreicht hat; OpenAI empfiehlt 25000, um hohes Nachdenken auszuprobieren.",
+        "es": "El razonamiento también cuenta. Auméntela si los registros indican que una respuesta ha alcanzado max_tokens; OpenAI aconseja 25000 para probar un razonamiento alto."
+      },
+      "required": false,
+      "default": 16000,
+      "min": 2048,
+      "max": 128000
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "timeout_seconds": 60,
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "description": {
+        "en": "Asks each chosen model for a one-word answer and shows its time. Spends a few tokens.",
+        "fr": "Demande une réponse d’un mot à chaque modèle choisi et affiche son temps. Consomme quelques jetons.",
+        "de": "Bittet jedes gewählte Modell um eine Antwort aus einem Wort und zeigt die Zeit an. Verbraucht ein paar Tokens.",
+        "es": "Pide una respuesta de una palabra a cada modelo elegido y muestra su tiempo. Consume algunos tokens."
+      }
+    }
+  ],
+  "widgets": [
+    {
+      "key": "usage",
+      "icon": "cpu",
+      "label": {
+        "en": "OpenAI usage",
+        "fr": "Conso OpenAI",
+        "de": "OpenAI-Verbrauch",
+        "es": "Consumo OpenAI"
+      },
+      "description": {
+        "en": "Requests and tokens of the assistant, per day and month, and the last error.",
+        "fr": "Requêtes et jetons de l’assistant, par jour et par mois, et la dernière erreur.",
+        "de": "Anfragen und Tokens des Assistenten pro Tag und Monat sowie der letzte Fehler.",
+        "es": "Solicitudes y tokens del asistente, por día y mes, y el último error."
+      }
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "error",
+      "label": {
+        "en": "OpenAI: the assistant fails",
+        "fr": "OpenAI : l’assistant est en erreur",
+        "de": "OpenAI: Der Assistent schlägt fehl",
+        "es": "OpenAI: el asistente falla"
+      },
+      "description": {
+        "en": "OpenAI stopped answering: key refused, credits or spend limit, rate limit, model unavailable, API unreachable. Once per failure, not for every message.",
+        "fr": "OpenAI ne répond plus : clé refusée, crédits ou plafond de dépenses, limite de requêtes, modèle indisponible, API injoignable. Une fois par panne, pas à chaque message.",
+        "de": "OpenAI antwortet nicht mehr: Schlüssel abgelehnt, Guthaben oder Ausgabenlimit, Anfragelimit, Modell nicht verfügbar, API nicht erreichbar. Einmal pro Ausfall, nicht bei jeder Nachricht.",
+        "es": "OpenAI ya no responde: clave rechazada, créditos o límite de gasto, límite de solicitudes, modelo no disponible, API inaccesible. Una vez por fallo, no en cada mensaje."
+      },
+      "fields": [
+        {
+          "key": "kind",
+          "type": "select",
+          "required": false,
+          "label": {
+            "en": "Only for",
+            "fr": "Seulement pour",
+            "de": "Nur bei",
+            "es": "Solo para"
+          },
+          "description": {
+            "en": "Leave empty for any failure.",
+            "fr": "Laissez vide pour toute panne.",
+            "de": "Leer lassen für jeden Ausfall.",
+            "es": "Déjelo vacío para cualquier fallo."
+          },
+          "options": [
+            {
+              "value": "auth",
+              "label": {
+                "en": "Key refused",
+                "fr": "Clé refusée",
+                "de": "Schlüssel abgelehnt",
+                "es": "Clave rechazada"
+              }
+            },
+            {
+              "value": "billing",
+              "label": {
+                "en": "Credits or spend limit",
+                "fr": "Crédits ou plafond de dépenses",
+                "de": "Guthaben oder Ausgabenlimit",
+                "es": "Créditos o límite de gasto"
+              }
+            },
+            {
+              "value": "rate_limit",
+              "label": {
+                "en": "Rate limit",
+                "fr": "Limite de requêtes",
+                "de": "Anfragelimit",
+                "es": "Límite de solicitudes"
+              }
+            },
+            {
+              "value": "model",
+              "label": {
+                "en": "Model unavailable",
+                "fr": "Modèle indisponible",
+                "de": "Modell nicht verfügbar",
+                "es": "Modelo no disponible"
+              }
+            },
+            {
+              "value": "unreachable",
+              "label": {
+                "en": "API unreachable",
+                "fr": "API injoignable",
+                "de": "API nicht erreichbar",
+                "es": "API inaccesible"
+              }
+            },
+            {
+              "value": "timeout",
+              "label": {
+                "en": "Too slow",
+                "fr": "Trop lent",
+                "de": "Zu langsam",
+                "es": "Demasiado lento"
+              }
+            },
+            {
+              "value": "server",
+              "label": {
+                "en": "OpenAI error",
+                "fr": "Erreur OpenAI",
+                "de": "OpenAI-Fehler",
+                "es": "Error de OpenAI"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "kind",
+          "type": "string",
+          "label": {
+            "en": "Kind of failure",
+            "fr": "Type de panne",
+            "de": "Art des Ausfalls",
+            "es": "Tipo de fallo"
+          }
+        },
+        {
+          "key": "message",
+          "type": "string",
+          "label": {
+            "en": "Error message",
+            "fr": "Message d’erreur",
+            "de": "Fehlermeldung",
+            "es": "Mensaje de error"
+          }
+        },
+        {
+          "key": "use",
+          "type": "string",
+          "label": {
+            "en": "Request (chat, router, digest)",
+            "fr": "Requête (chat, router, digest)",
+            "de": "Anfrage (chat, router, digest)",
+            "es": "Solicitud (chat, router, digest)"
+          }
+        },
+        {
+          "key": "model",
+          "type": "string",
+          "label": {
+            "en": "Model",
+            "fr": "Modèle",
+            "de": "Modell",
+            "es": "Modelo"
+          }
+        }
+      ]
+    },
+    {
+      "key": "recovered",
+      "label": {
+        "en": "OpenAI: the assistant answers again",
+        "fr": "OpenAI : l’assistant répond de nouveau",
+        "de": "OpenAI: Der Assistent antwortet wieder",
+        "es": "OpenAI: el asistente vuelve a responder"
+      },
+      "description": {
+        "en": "The first answer after a failure.",
+        "fr": "La première réponse après une panne.",
+        "de": "Die erste Antwort nach einem Ausfall.",
+        "es": "La primera respuesta tras un fallo."
+      },
+      "variables": [
+        {
+          "key": "down_minutes",
+          "type": "number",
+          "label": {
+            "en": "Minutes of failure",
+            "fr": "Minutes de panne",
+            "de": "Minuten des Ausfalls",
+            "es": "Minutos de fallo"
+          }
+        }
+      ]
+    }
+  ]
+}
